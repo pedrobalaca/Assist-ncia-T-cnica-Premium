@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistência Premium - Orçamento Rápido</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS Base para Modos Claro e Escuro */
+        :root {
+            --cor-principal: #161e27; /* Azul Petróleo Escuro (Texto Principal no Claro) */
+            --cor-secundaria: #00bcd4; /* Ciano Vívido (Destaque) */
+            --cor-fundo: #f0f4f8; /* Fundo Claro */
+            --cor-texto: #161e27;
+            --cor-card-fundo: #ffffff;
+            --cor-sombra: rgba(22, 30, 39, 0.1);
+            --toggle-fundo: #ccc;
+            --toggle-bola: #ffffff;
+            --card-fundo-normal: var(--cor-principal); /* Botões escuros no Light Mode */
+            --card-texto-normal: #ffffff; /* Texto branco no Light Mode */
+        }
+
+        /* Estilos para o Modo Escuro */
+        body.dark-mode {
+            --cor-principal: #e0e0e0; /* Texto Claro (Texto Principal no Escuro) */
+            --cor-fundo: #121212; 
+            --cor-texto: #e0e0e0;
+            --cor-card-fundo: #1e1e1e; /* Fundo do container */
+            --cor-sombra: rgba(0, 0, 0, 0.5);
+            --toggle-fundo: #00bcd4;
+            --toggle-bola: #161e27;
+            
+            /* Fundo do botão fica mais claro para o texto ESCURO ser legível (Conforme solicitado) */
+            --card-fundo-normal: #e0e0e0; /* Fundo do botão CLARO no Dark Mode */
+            --card-texto-normal: #161e27; /* Texto ESCURO no Dark Mode */
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            transition: background-color 0.4s, color 0.4s;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: var(--cor-card-fundo);
+            border-radius: 16px;
+            box-shadow: 0 15px 40px var(--cor-sombra);
+            transition: background-color 0.4s, box-shadow 0.4s;
+            position: relative;
+        }
+
+        header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--cor-secundaria);
+            margin-bottom: 30px;
+        }
+        
+        /* NOVO ESTILO PARA O ÍCONE DE TEXTO DO HEADER */
+        .main-icon-text {
+            display: block;
+            font-size: 3em;
+            font-weight: 700;
+            color: var(--cor-principal);
+            margin-bottom: 5px;
+            transition: color 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+        .main-icon-text:hover {
+            transform: scale(1.1);
+            color: var(--cor-secundaria);
+        }
+
+        h1, h2 {
+            color: var(--cor-texto);
+            transition: color 0.4s;
+        }
+        h1 { font-weight: 700; font-size: 2.2em; margin-bottom: 5px; }
+        h2 { font-weight: 600; font-size: 1.6em; margin-bottom: 25px; }
+
+        /* Animação de entrada sutil para as etapas */
+        .animated-section {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Estilo dos Cards/Botões de Ação */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .card, .btn-opcoes {
+            padding: 20px;
+            background-color: var(--card-fundo-normal); 
+            color: var(--card-texto-normal); 
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            border: none;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 10px var(--cor-sombra);
+            position: relative;
+        }
+        
+        /* O Hover mantém a lógica de contraste (fundo ciano, texto escuro) */
+        .card:hover, .btn-opcoes:hover {
+            background-color: var(--cor-secundaria);
+            color: var(--cor-principal); 
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 12px 25px rgba(0, 188, 212, 0.4);
+        }
+        
+        /* NOVO ESTILO PARA O ÍCONE DE TEXTO DO CARD */
+        .card-icon-text {
+            display: block;
+            font-size: 2.5em; 
+            margin-bottom: 10px;
+            line-height: 1;
+            /* Usa a cor do texto pai */
+            color: inherit; 
+            transition: color 0.2s ease-in-out;
+        }
+        
+        /* Ajuste do Link Oficial */
+        .site-link {
+            color: var(--card-texto-normal);
+            opacity: 0.7;
+            transition: color 0.2s;
+            display: block; 
+            margin-top: 5px;
+            font-size: 0.8em;
+        }
+
+        .card:hover .site-link, .btn-opcoes:hover .site-link {
+            color: var(--cor-principal); 
+        }
+
+        /* Toggle de Modo Claro/Escuro (Elegante) */
+        #mode-toggle-container {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            z-index: 10;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--toggle-fundo);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "☀️";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--toggle-bola);
+            transition: .4s;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        input:checked + .slider {
+            background-color: var(--toggle-fundo);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+            content: "🌙";
+            background-color: var(--toggle-bola);
+        }
+        
+        /* Input e Select */
+        select, input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+            transition: border-color 0.3s, background-color 0.4s, color 0.4s;
+            background-color: var(--cor-card-fundo);
+            color: var(--cor-texto);
+        }
+        
+        /* Botões */
+        #btn-finalizar, button[onclick^="consultar"], button[onclick^="Ativar"], #btn-copiar-codigo {
+            background-color: var(--cor-secundaria);
+            color: var(--cor-principal);
+            padding: 15px 30px;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        /* Estilização específica para o botão Copiar Código */
+        #btn-copiar-codigo {
+            background-color: #f39c12; /* Laranja para destaque */
+            color: white;
+            margin-bottom: 15px;
+        }
+        #btn-copiar-codigo:hover {
+            background-color: #d35400; /* Laranja mais escuro no hover */
+        }
+
+
+        .btn-voltar {
+            background: none;
+            color: var(--cor-texto);
+            border: 1px solid var(--cor-principal);
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+            width: auto;
+            display: inline-block;
+            transition: background-color 0.2s, color 0.4s, border-color 0.4s;
+        }
+        .btn-voltar:hover { background-color: #e0e0e0; }
+        body.dark-mode .btn-voltar { border-color: #555; }
+        body.dark-mode .btn-voltar:hover { background-color: #333; }
+
+
+        /* Seção de Resumo e Código */
+        #resumo-e-codigo {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: var(--cor-fundo);
+            border: 3px solid var(--cor-secundaria);
+            border-radius: 12px;
+            margin-top: 30px;
+            transition: background-color 0.4s;
+        }
+        
+        #codigo-gerado {
+            display: block;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 3em; 
+            font-weight: 700;
+            color: #d35400; 
+            margin: 15px 0 20px;
+            letter-spacing: 3px;
+            animation: pulse 1s infinite alternate;
+        }
+
+        /* Estilo para o Resultado da Consulta */
+        #resultado-consulta {
+            border-left: 5px solid var(--cor-secundaria);
+            padding: 15px 20px;
+            background-color: #e8f4f8; 
+            border-radius: 4px;
+            margin-top: 20px;
+            text-align: left;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s ease-out;
+        }
+        
+        body.dark-mode #resultado-consulta {
+            background-color: #2a2a2a;
+        }
+
+        #resultado-consulta.visivel {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .status-sucesso {
+            color: #27ae60; 
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .status-erro {
+            color: #e74c3c; 
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        #resultado-consulta strong {
+            display: inline-block;
+            min-width: 150px;
+        }
+        
+        /* Mensagem de Copiado (CSS Básico) */
+        #copy-message {
+            margin-top: 5px;
+            color: #27ae60;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+    </style>
+</head>
+<body>
+
+<div id="mode-toggle-container">
+    <label class="toggle-switch">
+        <input type="checkbox" id="mode-toggle-checkbox" onclick="toggleDarkMode()">
+        <span class="slider"></span>
+    </label>
+</div>
+
+<div class="container">
+    <header>
+        <span class="main-icon-text">🔧</span>
+        
+        <h1>Assistência Técnica Premium</h1>
+        <p>Soluções rápidas e elegantes para seu hardware e software.</p>
+    </header>
+
+    <main id="main-content">
+        <div id="etapa-1" class="animated-section">
+            <h2>1. Qual serviço você precisa hoje?</h2>
+            <div class="card-grid">
+                <div class="card" onclick="mostrarEtapa('montagem-pc')">
+                    <span class="card-icon-text">🖥️</span>
+                    **Montagem de Computador** (Novo PC)
+                </div>
+                <div class="card" onclick="mostrarEtapa('mudar-sistema')">
+                    <span class="card-icon-text">🔄</span>
+                    Mudar o **Sistema Operacional**
+                </div>
+                <div class="card" onclick="mostrarEtapa('deixar-rapido')">
+                    <span class="card-icon-text">🚀</span>
+                    **Melhorar Desempenho** (Troca de SSD)
+                </div>
+                <div class="card" onclick="mostrarEtapa('escanear-codigo')">
+                    <span class="card-icon-text">🔍</span>
+                    **Consultar** Orçamento (Código)
+                </div>
+            </div>
+        </div>
+        
+        <div id="montagem-pc" style="display:none;" class="animated-section">
+            <h2>2. Montagem de PC: Qual o Foco?</h2>
+            <p style="opacity: 0.8; margin-bottom: 20px;">Escolha a finalidade do seu novo computador para definirmos o hardware.</p>
+            <label for="foco-pc" style="font-weight: 600;">Foco do Computador:</label>
+            <select id="foco-pc">
+                <option value="Essencial">Uso Essencial (Estudos, Navegação)</option>
+                <option value="Profissional">Profissional (Escritório, Produtividade)</option>
+                <option value="Design">Design Gráfico / Edição de Vídeo</option>
+                <option value="Gaming">Gaming / Alto Desempenho</option>
+            </select>
+            
+            <p style="font-weight: 600; margin-top: 30px;">Qual sistema deseja no seu PC montado?</p>
+            <div class="card-grid">
+                <div class="card btn-opcoes" onclick="selecionarSistemaMontagem('Windows')">
+                    <span class="card-icon-text">🪟</span>
+                    **Windows**
+                </div>
+                <div class="card btn-opcoes" onclick="selecionarSistemaMontagem('Linux')">
+                    <span class="card-icon-text">🐧</span>
+                    **Linux**
+                </div>
+            </div>
+            <button class="btn-voltar" onclick="mostrarEtapa('etapa-1')">← Voltar</button>
+        </div>
+
+        <div id="mudar-sistema" style="display:none;" class="animated-section">
+            <h2>2. Qual Família de Sistema deseja instalar?</h2>
+            <div class="card-grid">
+                <div class="card btn-opcoes" onclick="mostrarWindows()">
+                    <span class="card-icon-text">🪟</span>
+                    **Windows**
+                </div>
+                <div class="card btn-opcoes" onclick="mostrarLinux()">
+                    <span class="card-icon-text">🐧</span>
+                    **Linux** (Software Livre)
+                </div>
+            </div>
+            <button class="btn-voltar" onclick="mostrarEtapa('etapa-1')">← Voltar</button>
+        </div>
+
+        <div id="opcoes-windows" style="display:none;" class="animated-section">
+            <h2>2.1. Escolha a versão do Windows:</h2>
+            <div class="card-grid">
+                <div class="card btn-opcoes" onclick="selecionarSistema('Windows 11')">
+                    <span class="card-icon-text">1️⃣1️⃣</span>
+                    **Windows 11**
+                    <a href="https://www.microsoft.com/pt-br/software-download/windows11" target="_blank" class="site-link">Site Oficial</a>
+                </div>
+                <div class="card btn-opcoes" onclick="selecionarSistema('Windows 10')">
+                    <span class="card-icon-text">1️⃣0️⃣</span>
+                    **Windows 10**
+                    <a href="https://www.microsoft.com/pt-br/software-download/windows10iso" target="_blank" class="site-link">Site Oficial</a>
+                </div>
+            </div>
+            <button class="btn-voltar" onclick="mostrarEtapa('mudar-sistema')">← Voltar</button>
+        </div>
+
+        <div id="opcoes-linux" style="display:none;" class="animated-section">
+            <h2>2.2. Escolha sua Distribuição Linux:</h2>
+            <p style="opacity: 0.8; margin-bottom: 20px;">Selecione uma das opções mais populares abaixo ou escolha no menu completo.</p>
+            <div class="card-grid">
+                <div class="card btn-opcoes" onclick="selecionarSistema('Linux - Ubuntu')">
+                    <span class="card-icon-text">🇺</span>
+                    **Ubuntu** (O mais popular e amigável)
+                    <a href="https://ubuntu.com/download" target="_blank" class="site-link">Site Oficial</a>
+                </div>
+                <div class="card btn-opcoes" onclick="selecionarSistema('Linux - Mint')">
+                    <span class="card-icon-text">🍃</span>
+                    **Linux Mint** (Visual similar ao Windows)
+                    <a href="https://linuxmint.com/download.php" target="_blank" class="site-link">Site Oficial</a>
+                </div>
+                <div class="card btn-opcoes" onclick="selecionarSistema('Linux - Fedora')">
+                    <span class="card-icon-text">🎩</span>
+                    **Fedora** (Inovação e Desenvolvedores)
+                    <a href="https://getfedora.org/" target="_blank" class="site-link">Site Oficial</a>
+                </div>
+                <div class="card btn-opcoes" onclick="selecionarSistema('Linux - Debian')">
+                    <span class="card-icon-text">🌀</span>
+                    **Debian** (Estabilidade Máxima)
+                    <a href="https://www.debian.org/distrib/" target="_blank" class="site-link">Site Oficial</a>
+                </div>
+            </div>
+
+            <label for="outras-distros" style="font-weight: 600;">Outras Distros Populares:</label>
+            <select id="outras-distros" onchange="selecionarDistroDropdown(this.value)">
+                <option value="">-- Selecione uma opção --</option>
+                <option value="Linux - Manjaro">Manjaro (Baseado em Arch, fácil de usar)</option>
+                <option value="Linux - Pop!_OS">Pop!_OS (Foco em Programação e Gaming)</option>
+                <option value="Linux - Zorin OS">Zorin OS (Visual polido e moderno)</option>
+                <option value="Linux - Kali Linux">Kali Linux (Segurança e Testes de Penetração)</option>
+                <option value="Linux - Arch Linux">Arch Linux (Para usuários avançados - DIY)</option>
+                <option value="Linux - openSUSE">openSUSE (Comunidade forte e confiável)</option>
+                <option value="Linux - Elementary OS">Elementary OS (Design elegante e focado)</option>
+            </select>
+            
+            <button class="btn-voltar" onclick="mostrarEtapa('mudar-sistema')">← Voltar</button>
+        </div>
+
+        <div id="deixar-rapido" style="display:none;" class="animated-section">
+            <h2>3. Troca de SSD (Melhoria de Velocidade)</h2>
+            <label for="tamanho-ssd" style="font-weight: 600;">Escolha o Tamanho do SSD:</label>
+            <select id="tamanho-ssd">
+                <option value="120GB">120GB (Orçamento Básico)</option>
+                <option value="240GB">240GB (Bom Custo-Benefício)</option>
+                <option value="250GB">250GB (Mínimo)</option>
+                <option value="500GB">500GB</option>
+                <option value="1TB">1TB (Recomendado)</option>
+                <option value="2TB">2TB (Capacidade Alta)</option>
+            </select>
+
+            <label for="mudar-sistema-ssd" style="font-weight: 600;">Deseja Mudar o Sistema Operacional também?</label>
+            <select id="mudar-sistema-ssd" onchange="verificarMudarSistema()">
+                <option value="Nao">Não (Clonagem: Mantém o Sistema Atual)</option>
+                <option value="Sim">Sim (Instalação de um novo SO)</option>
+            </select>
+
+            <button id="btn-ssd-proximo" onclick="avancarAposSSD()">Finalizar Orçamento</button>
+            <button class="btn-voltar" onclick="mostrarEtapa('etapa-1')">← Voltar</button>
+        </div>
+
+        <div id="resumo-e-codigo" style="display:none;" class="animated-section">
+            <h2>Seu Orçamento e Código de Atendimento</h2>
+            <div id="detalhes-pedido" style="text-align: left; padding: 15px; border-bottom: 1px solid #ccc;">
+                <p><strong>Serviço Principal:</strong> <span id="resumo-servico"></span></p>
+                <p><strong>Sistema Operacional:</strong> <span id="resumo-sistema">Não Selecionado</span></p>
+                <p><strong>Detalhe Hardware:</strong> <span id="resumo-ssd">Não Aplicável</span></p>
+            </div>
+            
+            <p style="margin-top: 30px; font-size: 1.1em; font-weight: 600;">Seu Código Exclusivo:</p>
+            <span id="codigo-gerado">---</span>
+            
+            <button onclick="copiarCodigo()" id="btn-copiar-codigo">Copiar Código</button>
+            <p id="copy-message"></p>
+
+            <p style="font-size: 0.9em; opacity: 0.7;">Apresente este código na assistência para iniciar o serviço imediatamente.</p>
+        </div>
+        
+        <div id="escanear-codigo" style="display:none;" class="animated-section">
+            <h2>4. Consulta de Orçamento</h2>
+            <p>Digite o código de atendimento para ver o resumo do seu pedido.</p>
+            <input type="text" id="input-codigo" placeholder="Ex: TEC-2025-1A7B9C" style="text-align: center;">
+            <button onclick="consultarCodigo()">Consultar Pedido</button>
+            
+            <div id="resultado-consulta" style="display:none;">
+                </div>
+            
+            <p style="margin-top: 30px; font-weight: 600; border-top: 1px solid #ddd; padding-top: 20px;">Acesso da Equipe:</p>
+            <button onclick="alert('Simulação de Scanner. Em um site real, a câmera seria ativada aqui.')">Ativar Scanner QR Code</button>
+            <button class="btn-voltar" onclick="mostrarEtapa('etapa-1')">← Voltar</button>
+        </div>
+
+    </main>
+</div>
+
+<script>
+    // Variáveis Globais para Armazenar as Escolhas
+    let pedido = {
+        servico: '',
+        sistema: '',
+        ssd: '',
+        foco_pc: '',
+        // Removido: preco_total
+    };
+        
+    // Função para alternar o Modo Claro/Escuro
+    function toggleDarkMode() {
+        const body = document.body;
+        const checkbox = document.getElementById('mode-toggle-checkbox');
+        
+        body.classList.toggle('dark-mode');
+        
+        // Atualiza o localStorage e o estado do checkbox
+        if (body.classList.contains('dark-mode')) {
+            localStorage.setItem('mode', 'dark');
+            checkbox.checked = true;
+        } else {
+            localStorage.setItem('mode', 'light');
+            checkbox.checked = false;
+        }
+    }
+    
+    // Verifica a preferência do usuário ao carregar a página
+    document.addEventListener('DOMContentLoaded', () => {
+        const checkbox = document.getElementById('mode-toggle-checkbox');
+        
+        if (localStorage.getItem('mode') === 'dark') {
+            document.body.classList.add('dark-mode');
+            checkbox.checked = true;
+        } else {
+            checkbox.checked = false;
+        }
+        // Inicia na primeira etapa
+        mostrarEtapa('etapa-1');
+    });
+
+    // Função principal para mudar a etapa (tela) com animação
+    function mostrarEtapa(id) {
+        document.querySelectorAll('.animated-section').forEach(el => {
+            el.style.display = 'none';
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(10px)';
+        });
+
+        const etapa = document.getElementById(id);
+        if (etapa) {
+            etapa.style.display = 'block';
+            etapa.style.animation = 'none'; 
+            etapa.offsetHeight; 
+            etapa.style.animation = 'fadeIn 0.4s ease-out forwards';
+        }
+        
+        const resultadoDiv = document.getElementById('resultado-consulta');
+        if (resultadoDiv) {
+            resultadoDiv.classList.remove('visivel');
+            resultadoDiv.style.display = 'none';
+        }
+        
+        // Esconde a mensagem de "Copiado" ao mudar de tela
+        const copyMessage = document.getElementById('copy-message');
+        if (copyMessage) copyMessage.style.opacity = '0';
+    }
+    
+    // FLUXO DE MONTAGEM DE PC
+    function selecionarSistemaMontagem(familiaSO) {
+        pedido.servico = 'Montagem de Computador';
+        pedido.foco_pc = document.getElementById('foco-pc').value;
+        pedido.ssd = ''; 
+        
+        if (familiaSO === 'Windows') {
+            pedido.sistema = 'Windows (Versão a definir)';
+        } else {
+             pedido.sistema = 'Linux (Distribuição a definir)';
+        }
+        
+        gerarResumo();
+        mostrarEtapa('resumo-e-codigo');
+    }
+
+    // FLUXO DE MUDANÇA DE SISTEMA/SSD
+    function mostrarWindows() { 
+        pedido.servico = 'Instalação de Windows'; 
+        pedido.ssd = '';
+        mostrarEtapa('opcoes-windows');
+    }
+    function mostrarLinux() { 
+        pedido.servico = 'Instalação de Linux'; 
+        pedido.ssd = '';
+        mostrarEtapa('opcoes-linux'); 
+    }
+    
+    function selecionarSistema(sistemaEscolhido) {
+        // Se já vier do fluxo SSD, mantém o SSD. Se não, é só mudança de SO.
+        if (!pedido.servico.includes('SSD')) {
+            pedido.servico = 'Instalação de Sistema Operacional';
+        }
+        
+        pedido.sistema = sistemaEscolhido;
+        gerarResumo();
+        mostrarEtapa('resumo-e-codigo');
+    }
+    
+    function selecionarDistroDropdown(distro) {
+        if (distro) { selecionarSistema(distro); }
+    }
+
+    function verificarMudarSistema() {
+        const btn = document.getElementById('btn-ssd-proximo');
+        if (document.getElementById('mudar-sistema-ssd').value === 'Sim') {
+            btn.textContent = 'Escolher Sistema';
+        } else {
+            btn.textContent = 'Finalizar Orçamento';
+        }
+    }
+
+    function avancarAposSSD() {
+        pedido.ssd = document.getElementById('tamanho-ssd').value;
+        
+        if (document.getElementById('mudar-sistema-ssd').value === 'Sim') {
+            pedido.servico = 'Troca de SSD + Mudança de Sistema';
+            // Vai para a seleção do SO
+            mostrarEtapa('mudar-sistema');
+        } else {
+            pedido.servico = 'Troca de SSD (Clonagem do SO)';
+            pedido.sistema = 'Sistema Atual Mantido (Clonagem)';
+            gerarResumo();
+            mostrarEtapa('resumo-e-codigo');
+        }
+    }
+    
+    // FUNÇÃO CENTRAL: GERAÇÃO DO RESUMO
+    function gerarResumo() {
+        let codigo = 'TEC-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+        
+        // 1. Inserção dos Dados no HTML
+        document.getElementById('resumo-servico').textContent = pedido.servico;
+        document.getElementById('resumo-sistema').textContent = pedido.sistema;
+        
+        let detalheHardware = 'Não Aplicável';
+        if (pedido.servico.includes('Montagem')) {
+            detalheHardware = 'Foco: ' + pedido.foco_pc;
+        } else if (pedido.servico.includes('SSD')) {
+            detalheHardware = 'SSD: ' + pedido.ssd;
+        }
+        document.getElementById('resumo-ssd').textContent = detalheHardware;
+
+        document.getElementById('codigo-gerado').textContent = codigo;
+        
+        // 2. Salvando no Local Storage
+        localStorage.setItem(codigo, JSON.stringify(pedido));
+    }
+    
+    // FUNÇÃO: COPIAR CÓDIGO
+    function copiarCodigo() {
+        const codigo = document.getElementById('codigo-gerado').textContent;
+        const copyMessage = document.getElementById('copy-message');
+
+        // Usa a API Clipboard (moderna)
+        navigator.clipboard.writeText(codigo).then(() => {
+            copyMessage.textContent = '✅ Código copiado!';
+            copyMessage.style.opacity = '1';
+            
+            // Faz a mensagem desaparecer após 2 segundos
+            setTimeout(() => {
+                copyMessage.style.opacity = '0';
+            }, 2000);
+        }).catch(err => {
+            // Fallback para navegadores mais antigos (menos comum hoje)
+            copyMessage.textContent = '❌ Erro ao copiar.';
+            copyMessage.style.opacity = '1';
+            console.error('Falha ao copiar:', err);
+        });
+    }
+
+    // Função: Consulta do Código (Exibição na Tela)
+    function consultarCodigo() {
+        const inputCodigo = document.getElementById('input-codigo').value.toUpperCase();
+        const pedidoSalvo = localStorage.getItem(inputCodigo);
+        const resultadoDiv = document.getElementById('resultado-consulta');
+        
+        resultadoDiv.innerHTML = ''; 
+        resultadoDiv.classList.remove('visivel');
+        resultadoDiv.style.display = 'block';
+
+        if (pedidoSalvo) {
+            const dados = JSON.parse(pedidoSalvo);
+            
+            let detalhe = dados.foco_pc ? 'Foco PC: ' + dados.foco_pc : (dados.ssd ? 'SSD: ' + dados.ssd : 'Não Aplicável');
+
+            resultadoDiv.innerHTML = `
+                <p class="status-sucesso">✔ Pedido Encontrado: ${inputCodigo}</p>
+                <p><strong>Serviço:</strong> ${dados.servico}</p>
+                <p><strong>Sistema:</strong> ${dados.sistema}</p>
+                <p><strong>Detalhe Hardware:</strong> ${detalhe}</p>
+                <p style="margin-top: 15px;">**Seu pedido está pronto para ser processado.**</p>
+            `;
+            resultadoDiv.classList.add('visivel');
+
+        } else {
+            resultadoDiv.innerHTML = `
+                <p class="status-erro">❌ Erro na Consulta</p>
+                <p>O código **${inputCodigo}** não foi encontrado. Por favor, verifique a digitação ou gere um novo orçamento.</p>
+            `;
+            resultadoDiv.classList.add('visivel');
+        }
+    }
+</script>
+</body>
+</html>
